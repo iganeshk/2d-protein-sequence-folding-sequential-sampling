@@ -4,10 +4,8 @@ One Paragraph of project description goes here
 
 ### Prerequisites
 
-python-2
-
 ```
-Give examples
+python2
 ```
 ### Installing
 ```

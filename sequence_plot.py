@@ -18,6 +18,7 @@
 from __future__ import division
 from scipy import stats as ss
 
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tk
@@ -27,7 +28,7 @@ import time
 
 
 # Constants
-N = 1000        	# num of conformations
+N = 2000        	# num of conformations
 delta = 5           # num of steps lookahead in the regular SIS steps
 lamda = 2           # frequency of resampling
 paths = 20          # num of independent paths in the resampling steps
@@ -77,7 +78,7 @@ def write_conformations(S, w, U, t_exec, output_file_name):
         S_sorted.append(S[index])
         w_sorted.append(w[index])
 
-    np.savez(output_file_name, energies=U_sorted, coordinates=S_sorted,
+    np.savez(os.path.join(sequence + '/', output_file_name), energies=U_sorted, coordinates=S_sorted,
              weights=w_sorted, t_exec=t_exec)
 
 
@@ -353,7 +354,7 @@ def read_conformations(conformation_file_name):
     """
     read from file the conformations sorted by energy from low to high
     """
-    conformations = np.load(conformation_file_name + '_conformations.npz')
+    conformations = np.load(conformation_file_name)
     U = conformations['energies'].tolist()
     S = conformations['coordinates'].tolist()
     w = conformations['weights'].tolist()
@@ -403,10 +404,12 @@ def plot_config(x_coord, input_HP_sequence, title, figname, is_grid_plotted):
     # set aspect ratios to be equal
     plt.gca().axes.set_aspect('equal')
     # save figure
-    plt.savefig(figname)
+    plt.savefig(sequence + '/' + figname)
 
 
 def generate_conformations():
+    if not os.path.exists(sequence):
+        os.makedirs(sequence)
     t1 = time.clock()
     # if seq_len > 6:
     #     print "\nThis is going to take a while (depending on processor(s) speed).."
@@ -498,19 +501,19 @@ def generate_conformations():
     temp_time = t_exec - 3600 * hours
     minutes = temp_time // 60
     seconds = temp_time - 60 * minutes
-    print('Time taken to determine conformations: %d hrs %d mins %d secs' %
+    print('\nTime taken to determine conformations: %d hrs %d mins %d secs' %
           (hours, minutes, seconds))
     # save conformations and execution time
     write_conformations(
-        S, w, U, t_exec, output_file_name + "_conformations.npz")
+        S, w, U, t_exec, "conformations.npz")
 
 
 def plot():
-    num_of_figs = input("Enter the number of conformations to plot: ")
+    num_of_figs = input("\nEnter the number of conformations to plot: ")
     # fig_file_keywords = raw_input("Enter the output file keyword: ")
     # Output Plots File Sequence Keyword
     fig_file_keywords = sequence
-    U, S, w = read_conformations(output_file_name)
+    U, S, w = read_conformations(sequence + '/' + 'conformations.npz')
 
     # plot conformations
     seq_len = len(input_HP_sequence)
@@ -533,25 +536,30 @@ def main():
     if len(sys.argv) == 3:
         function = str(sys.argv[1])
         sequence = str(sys.argv[2])
-        # output_file_name = str(sys.argv[2])
-        # tau = float(sys.argv[2])         # use tau as a global variable
+
     elif(len(sys.argv) > 3) or (len(sys.argv) < 3):
         print "\nInvalid arguments! Usage: \n$ python sequence_plot.py generate/plot protein_sequence"
         sys.exit()
-    # read in HP sequence
-    # input_HP_sequence = read_input_sequence(sequence)
+
     output_file_name = sequence
     input_HP_sequence = sequence
     seq_len = len(input_HP_sequence)
-    # read in data
-    # input_HP_sequence = sequence
-    if(function == "generate"):
+
+    if(function.lower() == "generate"):
         generate_conformations()
         plot()
-    elif(function == "plot"):
-        plot()
+    elif(function.lower() == "plot"):
+        if os.path.exists(sequence + '/conformations.npz'):
+            plot()
+        else:
+            no_conformation = raw_input ("\nConformations for the sequence " + sequence + " not generated, would you like to generate? (y/n): ")
+            if(no_conformation.lower() == "y"):
+                generate_conformations()
+                plot()
+            else:
+                sys.exit()        
     else:
-        print "Unknown function " + function + ", please check your input and try again!"
+        print ("\nUnknown function " + function + ", please check your input and try again!")
         sys.exit()
 if __name__ == '__main__':
     main()
