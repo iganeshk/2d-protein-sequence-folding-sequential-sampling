@@ -10,7 +10,6 @@ python2
 ### Installing
 ```
 git pull https://github.com/iganeshk/2d-protein-sequence-folding-sequential-sampling.git
-
 ```
 ### Examples
 
@@ -24,7 +23,7 @@ To generate plots only
 ```
 python sequence_plot.py plot HPPPHHHPH
 ```
-This command will only plot if the conformations of the sequence exists in the executing directory else ask to generate again.
+This command will only plot if the conformations of the sequence exists in the executing directory else prompt to generate again.
 
 ## Acknowledgments
 
