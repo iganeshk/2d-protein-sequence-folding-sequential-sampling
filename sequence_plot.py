@@ -54,9 +54,7 @@ ahead = 2
 
 # define functions
 def read_input_sequence(sequence):
-    """
-    read in the input HP sequence from file
-    """
+    # read in the input HP sequence from file
     input_HP_sequence = ''
     with open(sequence, 'r') as file_id:
         for line in file_id:
@@ -65,10 +63,8 @@ def read_input_sequence(sequence):
 
 
 def write_conformations(S, w, U, t_exec, output_file_name):
-    """
-    write the conformations to file from the lowest energy to the highest
-    and the execution time
-    """
+    # write the conformations to file from the lowest energy to the highest
+    # and the execution time
     sorted_energy_indice = np.argsort(U)
     U_sorted = []
     S_sorted = []
@@ -83,9 +79,7 @@ def write_conformations(S, w, U, t_exec, output_file_name):
 
 
 def compute_couples(input_HP_sequence):
-    """
-    compute all the possible couples in the series
-    """
+    # compute all the possible couples in the series
     num = 0  # initialize the size of couples
     couples = np.zeros([len(input_HP_sequence)**2, 2])
     for ii in range(len(input_HP_sequence)):
@@ -101,11 +95,9 @@ def compute_couples(input_HP_sequence):
 
 
 def compute_energy(x, couples):
-    """
-    Compute the energy of a specific conformation
-    Input:  current residue position x = [[x1,y1],[x2,y2]...[xn,yn]]
-            couples = 2d numpy array
-    """
+    # Compute the energy of a specific conformation
+    # Input:  current residue position x = [[x1,y1],[x2,y2]...[xn,yn]]
+    #         couples = 2d numpy array
     U = 0
     for ii in range(couples.shape[0]):
 
@@ -121,13 +113,11 @@ def compute_energy(x, couples):
 
 
 def one_step(x):
-    """
-    return all possible configurations after one step given the current position
-    and direction for each configuration
+    # return all possible configurations after one step given the current position
+    # and direction for each configuration
 
-    Input: current residue position x = [[x1,y1],[x2,y2]...[xn,yn]]
-    Output: [a list of configurations, a list of directions]
-    """
+    # Input: current residue position x = [[x1,y1],[x2,y2]...[xn,yn]]
+    # Output: [a list of configurations, a list of directions]
     assert (len(x) >= 2)
     # find 3 neighbors of the end point and their directions
     nbrs, dirs = neighbor(x[-1], x[-2])
@@ -147,13 +137,10 @@ def one_step(x):
 
 
 def neighbor(pt, cpt):
-    """
-    return the neighbors of pt other than cpt as well as direction
+    # return the neighbors of pt other than cpt as well as direction
 
-    Input: pt = [x1,y1], cpt = [x2,y2]
-    Output: [a list of 3 points, a list of 3 directions]
-
-    """
+    # Input: pt = [x1,y1], cpt = [x2,y2]
+    # Output: [a list of 3 points, a list of 3 directions]
     nbrs = []
     dirs = []
     if pt[0] == cpt[0]:
@@ -176,15 +163,11 @@ def neighbor(pt, cpt):
 
 
 def multi_step_look_ahead(x, input_HP_sequence, steps_tmp):
-    """
-    Collect future information using the multi-step-look-ahead method to bias the movement of the next step
-
-    Input:  current position x = [[x1,y1],[x2,y2]...[xn,yn]],
-            input_HP_sequence: the protein HP sequence input by user
-            step_tmp: num of steps look-ahead in the algorithm
-    Output: unormalized probabilities towards three different directions, i.e. left, right, and ahead
-
-    """
+    # Collect the future information using the multi-step-look-ahead method in favor of the next step
+    # Input:  current position x = [[x1,y1],[x2,y2]...[xn,yn]],
+    #         input_HP_sequence: the protein HP sequence input by user
+    #         step_tmp: num of steps look-ahead in the algorithm
+    # Output: unnormalized probabilities towards three different directions, i.e. left, right, and ahead
     steps = min(steps_tmp, len(input_HP_sequence) - len(x))
     input_seq = input_HP_sequence[:(len(x) + steps)]
 
@@ -223,9 +206,7 @@ def multi_step_look_ahead(x, input_HP_sequence, steps_tmp):
 
 
 def compute_next_point(pt1, pt2, move):
-    """
-    compute the next position of a newly added point
-    """
+    # compute the next position of a newly added point
     disp_vec = [pt1[0] - pt2[0], pt1[1] - pt2[1]]
     next_pt = [pt1[0], pt1[1]]
 
@@ -237,7 +218,7 @@ def compute_next_point(pt1, pt2, move):
         elif move == "ahead":
             next_pt[1] += 1
         else:
-            print "Unrecognized move direction!"
+            print "Unspecified move direction!"
     elif disp_vec == [0, -1]:
         if move == "left":
             next_pt[0] += 1
@@ -246,7 +227,7 @@ def compute_next_point(pt1, pt2, move):
         elif move == "ahead":
             next_pt[1] -= 1
         else:
-            print "Unrecognized move direction!"
+            print "Unspecified move direction!"
     elif disp_vec == [1, 0]:
         if move == "left":
             next_pt[1] += 1
@@ -255,7 +236,7 @@ def compute_next_point(pt1, pt2, move):
         elif move == "ahead":
             next_pt[0] += 1
         else:
-            print "Unrecognized move direction!"
+            print "Unspecified move direction!"
     elif disp_vec == [-1, 0]:
         if move == "left":
             next_pt[1] -= 1
@@ -264,24 +245,22 @@ def compute_next_point(pt1, pt2, move):
         elif move == "ahead":
             next_pt[0] -= 1
         else:
-            print "Unrecognized move direction!"
+            print "Unspecified move direction!"
     else:
-        print "Wrong displacement bewteen two continuous points!"
+        print "Incorrect displacement between the continuous points!"
 
     return next_pt
 
 
 def resample_conformations(S, w, a, N_star):
-    """
-    perform standard resampling from the conformation set S and the probability vector a
-    """
+    # perform standard re-sampling from the conformation set S and the probability vector a
     assert(min(a) >= 0)
 
     # normalize the probability vector a
     a_normal = np.array(a)
     a_normal = a_normal / np.sum(a_normal)
 
-    # resample conformations S_star with probabilities proportional to a_normal
+    # re-sample conformations S_star with probabilities proportional to a_normal
     S_indice = np.arange(len(S))
     resample_obj = ss.rv_discrete(
         name="resample_obj", values=(S_indice, a_normal))
@@ -294,17 +273,14 @@ def resample_conformations(S, w, a, N_star):
     # update weights
     w_star = N_star * [1]
 
-    # return the resampled conformations S_star and the weights w_star
+    # return the re sampled conformations S_star and the weights w_star
     return (S_star, w_star)
 
 
 def resample_with_pilot_exploration(S, w, input_HP_sequence, N_star):
-    """
-    Resample the current set of conformations using the pilot-exploration resampling scheme
-    """
-    a = []      # resampling probability vector
-    # generate the next Delta residues paths independent times for each
-    # conformation in S
+    # Re sample the current set of conformations using the pilot-exploration re-sampling scheme
+    a = []      # re-sampling probability vector
+    # generate the next Delta residues paths independent times for each and store conformation in S
     for j, x in enumerate(S):
         bj = 0
         for l in xrange(paths):
@@ -338,22 +314,20 @@ def resample_with_pilot_exploration(S, w, input_HP_sequence, N_star):
             # sum up the Boltzmann weight of each path l
             bj += pi_l          # pi_l value exiting the loop
 
-        # compute the unnormalized resampling probability aj
+        # compute the unnormalized re-sampling probability aj
         bj /= paths
         aj = bj**alpha
         a.append(aj)
 
-    # perform a standard resampling step with the probability vector
+    # perform a standard re-sampling step with the probability vector
     S_star, w_star = resample_conformations(S, w, a, N_star)
 
-    # return the resampled conformations S_star and the weights w_star
+    # return the re-sampled conformations S_star and the weights w_star
     return (S_star, w_star)
 
 
 def read_conformations(conformation_file_name):
-    """
-    read from file the conformations sorted by energy from low to high
-    """
+    # read conformations from the file sorted by energy low to high
     conformations = np.load(conformation_file_name)
     U = conformations['energies'].tolist()
     S = conformations['coordinates'].tolist()
@@ -362,19 +336,17 @@ def read_conformations(conformation_file_name):
 
 
 def plot_config(x_coord, input_HP_sequence, title, figname, is_grid_plotted):
-    """
-    Input:  x_coord: coordinates of all the protein residues = [[x1,y1],[x2,y2]...[xn,yn]]
-            input_HP_sequence: HP sequence of protein (e.g. 'HPPHHP')
-            title: figure title
-            figname: figure name that will be saved as
-            is_grid_plotted: whether to plot grids = True/False.
-    """
+    # Plot:   x_coord: coordinates of all the protein residues = [[x1,y1],[x2,y2]...[xn,yn]]
+    #         input_HP_sequence: HP sequence of protein (e.g. 'HPPHHPH')
+    #         title: self-explanatory
+    #         figname: figure name that will be saved as
+    #         is_grid_plotted: whether to plot grids = True/False.
     plt.figure(1)
     plt.clf()
-    # figure parameters
+    # fig parameters
     dot_size = 30
     line_wid = 1
-    # first plot all individual residues
+    # plot all individual residues first
     for i, coord in enumerate(x_coord):
         HP = input_HP_sequence[i]
         if HP == 'H':
@@ -482,7 +454,7 @@ def generate_conformations():
             del w[index - i]
             del U[index - i]
 
-        # perform resampling
+        # perform re-sampling
         if t % lamda == 0:
             S, w = resample_with_pilot_exploration(
                 S, w, input_HP_sequence, len(S))
@@ -526,6 +498,7 @@ def plot():
 
 
 def main():
+	# define the global elements
     global tau
     global function
     global sequence
@@ -533,6 +506,7 @@ def main():
     global input_HP_sequence
     global output_file_name
 
+    # parse the arguments
     if len(sys.argv) == 3:
         function = str(sys.argv[1])
         sequence = str(sys.argv[2])
@@ -545,6 +519,7 @@ def main():
     input_HP_sequence = sequence
     seq_len = len(input_HP_sequence)
 
+    # check what function is being invoked
     if(function.lower() == "generate"):
         generate_conformations()
         plot()
