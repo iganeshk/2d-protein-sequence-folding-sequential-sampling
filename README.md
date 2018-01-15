@@ -1,6 +1,6 @@
-# Predicting 2D Protein Sequence Folding using Sequential Sampling Edit
+# Predicting 2D Protein Sequence Folding using Sequential Sampling
 
-One Paragraph of project description goes here
+<!-- One Paragraph of project description goes here -->
 
 ### Prerequisites
 
